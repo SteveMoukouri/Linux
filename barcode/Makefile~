@@ -1,0 +1,31 @@
+DESTDIR = /usr/local
+
+all:
+	cd src; $(MAKE) $@
+	cd lib; $(MAKE) $@
+
+test:
+	@cd src; $(MAKE) $@
+
+clean:
+	cd src; $(MAKE) $@
+	cd lib; $(MAKE) $@
+
+install:
+	cd src; $(MAKE) install DESTDIR=$(DESTDIR)
+	cd lib; $(MAKE) install DESTDIR=$(DESTDIR)
+	cd doc; gzip -c barcode.1
+	cd doc; gzip -c barcode.3
+	mkdir -p $(DESTDIR)/share/barcode $(DESTDIR)/share/man/man1 $(DESTDIR)/share/man/man3 $(DESTDIR)/share/info
+	cp doc/barcode.1.gz $(DESTDIR)/share/man/man1
+	cp doc/barcode.3.gz  $(DESTDIR)/share/man/man3
+	cd doc; makeinfo barinfo.texi
+	cp doc/barinfo.info $(DESTDIR)/share/info
+	cp AUTHORS COPYING ChangeLog NEWS TODO README $(DESTDIR)/share/barcode
+
+uninstall:
+	cd src; $(MAKE) uninstall DESTDIR=$(DESTDIR)
+	cd lib; $(MAKE) uninstall DESTDIR=$(DESTDIR)
+	rm -f  $(DESTDIR)/share/barcode/* $(DESTDIR)/share/info/* $(DESTDIR)/share/man/man3/* $(DESTDIR)/share/man/man1/*
+
+.PHONY: clean test all uninstall install

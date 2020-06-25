@@ -1,0 +1,34 @@
+CC = gcc
+CFLAGS = -g -O2
+SRCFILES = cmdline.c main.c sample.c
+OBJ = $(SRCFILES:.c=.o)
+CPPFLAGS = -DHAVE_CONFIG_H -DNO_LIBPAPER -I. -I.. -I../lib
+LDFLAGS = -L../lib
+LDLIBS = -lbarcode
+
+all: barcode sample
+
+test: barcode bonjour.eps
+#	@./barcode -b test-bonjour.eps -E > test-bonjour.eps
+#	@cmp bonjour.eps test-bonjour.eps
+	@cmp bonjour.eps *.eps
+#%.out: %.sed %.in %.true
+#	@./$*.sed $*.in > $@
+#	@cmp -s $@ $*.true && echo "testing $*.sed: OK"
+
+barcode: $(OBJ) ../lib/libbarcode.a
+	$(CC) -o $@ cmdline.o main.o $(LDFLAGS) $(LDLIBS)
+
+sample: sample.o  ../lib/libbarcode.a
+	$(CC) -o $@ sample.o $(LDFLAGS) $(LDLIBS)
+
+%.o: %.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+
+../lib/libbarcode.a:
+	cd ../lib; $(MAKE)
+
+clean:
+	rm -f $(OBJ) sample barcode test-bonjour.eps
+
+.PHONY: all clean test
